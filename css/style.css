@@ -71,13 +71,13 @@ a {
       -ms-flex-line-pack: center;
           align-content: center; }
       #mainContainer #mainContentBlock #mainContent #avatarImageBlock {
-        width: 300px;
-        height: 300px;
+        width: 350px;
+        height: 350px;
         margin: 10px auto;
         border-radius: 50%;
         background-position: center center;
         background-size: cover;
-        box-shadow: inset 5px 5px 35px 5px #eeeeee;
+        box-shadow: 5px 5px 35px 5px #ee1eee;
         opacity: 0.95; }
       #mainContainer #mainContentBlock #mainContent #introBox {
         text-align: center;
