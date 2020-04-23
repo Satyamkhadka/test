@@ -1,0 +1,253 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="Color Switch" content="Some Game ">
+    <meta name="keywords" content="HTML,CSS,XML,JavaScript">
+    <meta name="S4TY4M" content="game">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="obstacles.js"></script>
+    <title> ColorSwitcher</title>
+    <style>
+        .rotatethis {
+
+            animation: 5s linear infinite rotate;
+
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .translatee {
+            animation: 5s linear infinite translate;
+
+        }
+
+        @keyframes translate {
+            from {
+                transform: translateY(0px);
+            }
+
+            to {
+                transform: translateY(100px);
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+    <script>
+        var BALL_OBJ;
+        var BACKGROUND_OBJ;
+        var JUMP_BTN;
+        var BALL_LOC;
+        var FRAME_HEIGHT = 512;
+        var FRAME_WIDTH = 320;
+        var FRAME_OFFSET_HOR = 500;
+        var BALL_DIAM = 20;
+        var FRAME_OFFSET_VER = 30; // at least for now;
+        var BALL_OFFSET_HOR = FRAME_OFFSET_HOR + (FRAME_WIDTH / 2) - (BALL_DIAM / 2);
+        var BALL_OFFSET_INIT_VERT = FRAME_OFFSET_VER + FRAME_HEIGHT - 120;
+
+        var BALL_OUT_ZONE = FRAME_OFFSET_VER + FRAME_HEIGHT;
+        var BALL_SPEED = 1; // in ms
+        //var BALL_DIR = true;
+        var CLICKLISTENER;
+        var ID;
+        var JUMP_HEIGHT = 50;
+        var BALL_COLOR = 'red';
+
+        var OBS_INS;   //obstacle instance
+
+        var SCORE_DIV; //set inside the padding
+
+        //keyPress Listener
+        document.body.onkeydown = function (e) {
+            if (e.keyCode == 32) {
+                clickManager();
+            }
+        }
+
+        //this function has setInterval 
+        //and called when key is pressed
+        function gogogo() { //animating 
+            var BALL_LOC = parseInt(BALL_OBJ.style.top);
+            var jump_up = 0;
+            var jump_down = BALL_LOC;
+            var out = FRAME_OFFSET_VER + FRAME_HEIGHT - BALL_DIAM;
+
+
+            ID = setInterval(animate, BALL_SPEED);
+
+            function animate() {
+                //let ball_obj = BALL_OBJ;
+                //console.log("value of ball : " + BALL_LOC);
+                BALL_OBJ.style.top = BALL_LOC + 'px';
+
+                if (jump_up <= JUMP_HEIGHT && jump_up >= 0) {
+                    BALL_LOC--;
+                    jump_up++;
+
+                    if (BALL_LOC < ((FRAME_HEIGHT / 2))) {
+                        if (BALL_LOC % 2 == 0) {
+                            OBS_INS.changeLocation();
+
+                        }
+                    }
+                } else if (BALL_LOC >= 0 && BALL_LOC <= out) {
+                    BALL_LOC++;
+                    //jumping down action
+                }
+
+                if (OBS_INS.checkRules()) {
+                    clearInterval(ID);
+                    reset();
+                    OBS_INS.resetGame();
+
+                }
+
+
+
+
+
+                if ((BALL_LOC) <= (FRAME_OFFSET_VER + 1) || BALL_LOC >= out) { // check finish condition
+                    clearInterval(ID);
+                    reset();
+                    OBS_INS.resetGame();
+                }
+
+            }
+        }
+
+
+        //this function creates thhe player piece (ball)
+        var createPlayerPiece = function () {
+            player_piece = document.createElement("div");
+            //var player_piece = BALL_OBJ;
+            player_piece.id = 'ball';
+            player_piece.style.width = BALL_DIAM + 'px';
+            player_piece.style.height = BALL_DIAM + 'px';
+            player_piece.style.background = BALL_COLOR;
+            player_piece.style.position = "absolute";
+            player_piece.style.top = BALL_OFFSET_INIT_VERT + 'px'; // initial
+            player_piece.style.left = FRAME_OFFSET_HOR + (FRAME_WIDTH / 2) - (BALL_DIAM / 2) + 'px'; //initial : left+ adding playablearea;s half and subb objects half 
+            player_piece.style.borderRadius = "50%";
+            player_piece.style.zIndex = 1;
+
+            OBS_INS = new Obstacle();
+            OBS_INS.setObstacle();
+            return player_piece;
+        }
+
+        //this function resets the position of the ball
+        var reset = function () {
+            BALL_OBJ.style.top = BALL_OFFSET_INIT_VERT;
+
+        }
+
+        //this function inserts the ball into the DOM model
+
+
+
+        function insertIntoDom() {
+            document.body.appendChild(BALL_OBJ);
+        }
+
+        //game starts with this function being called
+        initialize();
+
+
+
+        //this function initializes everything
+        function initialize() {
+            createPadding();
+            createFrame();
+            BALL_OBJ = new createPlayerPiece();
+            insertIntoDom();
+
+            updateScore();
+        }
+
+
+        //this function creates the background
+
+        function createFrame() {
+            BACKGROUND_OBJ = document.createElement("div");
+            background = BACKGROUND_OBJ;
+            background.style.zIndex = "-1";
+            background.style.background = "black";
+            background.style.width = FRAME_WIDTH + 'px';
+            background.style.height = FRAME_HEIGHT + 'px';
+            background.style.position = "absolute";
+            background.style.top = FRAME_OFFSET_VER + "px"; // initial
+            background.style.left = FRAME_OFFSET_HOR + 'px'; //initial
+            background.style.borderRadius = "2%";
+            document.body.appendChild(background);
+            background.addEventListener("mousedown", clickManager);
+        }
+
+
+        //this function creates white space up and below the frame
+        function createPadding(ball) {
+            up = document.createElement("div");
+            SCORE_DIV = up;
+            down = document.createElement("div");
+
+            up.style.position = "absolute";
+            up.style.width = FRAME_WIDTH + "px";
+            up.style.height = FRAME_OFFSET_VER + "px";
+            up.style.top = 0 + 'px';
+            up.style.left = FRAME_OFFSET_HOR + 'px'; //40 is half of the buttons width
+            up.style.zIndex = '2';
+            up.style.background = 'white';
+            document.body.appendChild(up);
+
+
+            down.style.position = "absolute";
+            down.style.width = FRAME_WIDTH + "px";
+            down.style.height = 60 + "px";
+            down.style.top = FRAME_OFFSET_VER + FRAME_HEIGHT + 'px';
+            down.style.left = FRAME_OFFSET_HOR + 'px'; //40 is half of the buttons width
+            down.style.zIndex = '2';
+            down.style.background = 'white';
+            document.body.appendChild(down);
+
+        }
+
+
+        //listenes for the clicks and key pressees
+        //prevents multiple clicks 
+        // ends one setInterval and stars another 
+        function clickManager() {
+            if (ID) {
+                clearInterval(ID);
+                gogogo();
+            } else {
+                gogogo();
+            }
+
+        }
+
+
+
+        //updates the score in the top
+        function updateScore() {
+            SCORE_DIV.innerHTML = "SCORE: " + NUMBER_OF_CALLS;
+        }
+
+
+
+
+
+    </script>
+</body>
+
+</html>
